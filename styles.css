@@ -361,3 +361,15 @@ a:focus-visible, summary:focus-visible { outline: 2px solid var(--text); outline
   .placeholder-facts-grid .placeholder-space { min-height: 170px; }
   .site-footer { padding-inline: 1.25rem; }
 }
+.eagle-card { grid-column: 1 / -1; position: relative; width: 100%; height: clamp(370px, 48vw, 580px); display: block; overflow: hidden; padding: 0; border: 1px solid #232320; border-radius: 2px; background: #10110f; color: var(--text); cursor: crosshair; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.eagle-base, .eagle-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.eagle-base { object-fit: contain; filter: grayscale(1); pointer-events: none; }
+.eagle-canvas { pointer-events: none; }
+.eagle-hint { position: absolute; top: 1rem; right: 1rem; display: flex; gap: 1rem; font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; color: #bbbdb2; pointer-events: none; transition: opacity 200ms; }
+.eagle-card:hover .eagle-hint, .eagle-card.is-revealed .eagle-hint { opacity: 0; }
+.eagle-card:focus-visible { outline: 2px solid var(--text); outline-offset: 5px; }
+.eagle-fallback-caption { display: none; }
+.eagle-card.has-image-error .eagle-fallback-caption { display: block; position: absolute; bottom: 2rem; width: 100%; text-align: center; font: 1.5rem Georgia, serif; }
+.eagle-fallback-caption strong { display: block; font-size: 3rem; font-weight: 400; }
+@media (max-width:760px), (pointer:coarse) { .eagle-card { height: 420px; cursor: pointer; } .eagle-hint { font-size: 0; } .eagle-hint::before { content: 'Tap to reveal'; font-size: .58rem; } }
+@media (prefers-reduced-motion:reduce) { .eagle-hint { font-size: 0; transition: none; } .eagle-hint::before { content: 'Select to reveal'; font-size: .58rem; } }
