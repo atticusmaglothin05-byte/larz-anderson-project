@@ -48,7 +48,8 @@ function initReveal(card) {
     layerContext.fillStyle=gradient;layerContext.fillRect(0,height*.58,width,height*.42);
     layerContext.textAlign='center';layerContext.textBaseline='alphabetic';layerContext.fillStyle='#f5f2eb';
     layerContext.font=`${Math.max(20,Math.min(38,width*.052))}px Georgia, serif`;
-    layerContext.fillText('Donated to BC',width/2,height*.78);
+    layerContext.fillText('Donated by',width/2,height*.70);
+    layerContext.fillText('Larz Anderson Estate',width/2,height*.79);
     layerContext.font=`${Math.max(48,Math.min(88,width*.12))}px Georgia, serif`;
     layerContext.fillText('1954',width/2,height*.94);
     if (!revealed) {
