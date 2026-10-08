@@ -18,8 +18,6 @@ The site is plain HTML, CSS, and JavaScript. There is no framework or build step
 
 To change how much scrolling controls the intro, edit `--intro-scroll-length` near the top of `styles.css`.
 
-## Content sections
+## Placeholder sections
 
-The homepage includes museum context, analysis prompts, a field-notes layout, and source links. `fun-facts.html` provides a separate museum facts page. The photograph placeholder and observation prompts are examples to replace with original evidence from a visit.
-
-Video replacements should retain both existing asset filenames. The full 16:9 frame remains visible so titles and Google Earth attribution are preserved. The park aerial image is a frame from the earlier introduction footage.
+The homepage contains mostly blank areas for the project, museum context, discourse and literacy, field notes, and sources. The Fun Facts page has six empty slots. Section links and expandable analysis panels remain functional.
