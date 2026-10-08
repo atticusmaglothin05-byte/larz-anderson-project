@@ -8,7 +8,7 @@ function initReveal(card) {
   const context = canvas.getContext('2d');
   const historical = card.querySelector('img');
   const current = new Image();
-  current.src = 'assets/eagle-bc.jpg';
+  current.src = 'assets/eagle-bc-gasson.jpg';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const mask = document.createElement('canvas'), maskContext = mask.getContext('2d');
   const layer = document.createElement('canvas'), layerContext = layer.getContext('2d');
@@ -71,7 +71,7 @@ function initReveal(card) {
     const dt=Math.min((time-previousTime)/1000 || 1/60,1/30);previousTime=time;
     if(!reduceMotion && !revealed && field) {
       if(pointer) {
-        const radius=Math.min(23,Math.max(13,field.width*.11));
+        const radius=7;
         field.splat(pointer.x,pointer.y,0,0,radius);
       }
       field.step(dt);
@@ -90,7 +90,7 @@ function initReveal(card) {
     if(lastPoint) {
       const dx=Math.max(-55,Math.min(55,(x-lastPoint.x)*9)),dy=Math.max(-55,Math.min(55,(y-lastPoint.y)*9));
       const distance=Math.hypot(x-lastPoint.x,y-lastPoint.y), steps=Math.min(12,Math.max(1,Math.ceil(distance/3)));
-      for(let n=1;n<=steps;n++) field.splat(lastPoint.x+(x-lastPoint.x)*n/steps,lastPoint.y+(y-lastPoint.y)*n/steps,dx/steps,dy/steps,15);
+      for(let n=1;n<=steps;n++) field.splat(lastPoint.x+(x-lastPoint.x)*n/steps,lastPoint.y+(y-lastPoint.y)*n/steps,dx/steps,dy/steps,7);
     }
     pointer={x,y};lastPoint=pointer;wake();
   }
