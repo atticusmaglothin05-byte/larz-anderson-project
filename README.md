@@ -1,4 +1,4 @@
-# Larz Anderson Auto Museum — Discourse & Literature
+# Larz Anderson Auto Museum — Discourse & Literacy
 
 Static website for the Larz Anderson Auto Museum project. The opening sequence is a scroll-controlled aerial video: scrolling forward advances the video; scrolling upward reverses it.
 
@@ -17,3 +17,9 @@ Static website for the Larz Anderson Auto Museum project. The opening sequence i
 The site is plain HTML, CSS, and JavaScript. There is no framework or build step. Edit the files directly and push to `main`; the Pages workflow deploys the updated site automatically after GitHub Pages is enabled for the repository.
 
 To change how much scrolling controls the intro, edit `--intro-scroll-length` near the top of `styles.css`.
+
+## Content sections
+
+The homepage includes museum context, analysis prompts, a field-notes layout, and source links. `fun-facts.html` provides a separate museum facts page. The photograph placeholder and observation prompts are examples to replace with original evidence from a visit.
+
+Video replacements should retain both existing asset filenames. The full 16:9 frame remains visible so titles and Google Earth attribution are preserved. The park aerial image is a frame from the earlier introduction footage.

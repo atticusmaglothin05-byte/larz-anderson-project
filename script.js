@@ -1,6 +1,5 @@
 (() => {
   const section = document.getElementById('scrollSequence');
-  const stage = section.querySelector('.intro-stage');
   const header = document.getElementById('siteHeader');
   const menuToggle = document.getElementById('menuToggle');
   const navigation = document.getElementById('siteNavigation');
@@ -39,11 +38,14 @@
 
   header.querySelector('.site-title').addEventListener('click', () => setMenuOpen(false));
 
+  if (!section || !video) return;
+  const stage = section.querySelector('.intro-stage');
+
   // Use a smaller encode on phones/tablets to reduce startup bandwidth.
   const mobile = window.matchMedia('(max-width: 760px)').matches;
   video.src = mobile
-    ? 'assets/larz-intro-scroll-720.mp4'
-    : 'assets/larz-intro-scroll.mp4';
+    ? 'assets/larz-intro-scroll-720.mp4?v=20261008'
+    : 'assets/larz-intro-scroll.mp4?v=20261008';
 
   let duration = 0;
   let targetTime = 0;
