@@ -1,10 +1,43 @@
 (() => {
   const section = document.getElementById('scrollSequence');
+  const stage = section.querySelector('.intro-stage');
+  const header = document.getElementById('siteHeader');
+  const menuToggle = document.getElementById('menuToggle');
+  const navigation = document.getElementById('siteNavigation');
   const video = document.getElementById('introVideo');
   const loadingScreen = document.getElementById('loadingScreen');
   const scrollCue = document.getElementById('scrollCue');
   const progressBar = document.getElementById('introProgress');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function setMenuOpen(open, restoreFocus = false) {
+    navigation.hidden = !open;
+    menuToggle.setAttribute('aria-expanded', String(open));
+    menuToggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+    if (restoreFocus) menuToggle.focus();
+  }
+
+  menuToggle.addEventListener('click', () => {
+    setMenuOpen(menuToggle.getAttribute('aria-expanded') !== 'true');
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!header.contains(event.target)) setMenuOpen(false);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !navigation.hidden) setMenuOpen(false, true);
+  });
+
+  header.addEventListener('focusout', (event) => {
+    if (!header.contains(event.relatedTarget)) setMenuOpen(false);
+  });
+
+  navigation.addEventListener('click', (event) => {
+    if (event.target.closest('a')) setMenuOpen(false, true);
+  });
+
+  header.querySelector('.site-title').addEventListener('click', () => setMenuOpen(false));
 
   // Use a smaller encode on phones/tablets to reduce startup bandwidth.
   const mobile = window.matchMedia('(max-width: 760px)').matches;
@@ -21,8 +54,8 @@
 
   function getProgress() {
     const rect = section.getBoundingClientRect();
-    const scrollable = Math.max(section.offsetHeight - window.innerHeight, 1);
-    return clamp(-rect.top / scrollable, 0, 1);
+    const scrollable = Math.max(section.offsetHeight - stage.offsetHeight, 1);
+    return clamp((header.offsetHeight - rect.top) / scrollable, 0, 1);
   }
 
   function updateTarget() {
