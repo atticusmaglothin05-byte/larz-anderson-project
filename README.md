@@ -18,6 +18,6 @@ The site is plain HTML, CSS, and JavaScript. There is no framework or build step
 
 To change how much scrolling controls the intro, edit `--intro-scroll-length` near the top of `styles.css`.
 
-## Placeholder sections
+## Project content
 
-The homepage contains mostly blank areas for the project, museum context, discourse and literacy, field notes, and sources. The Fun Facts page has six empty slots. Section links and expandable analysis panels remain functional.
+The homepage contains the final “Automotive Literacy at Larz Anderson” written portion by Atticus Maglothin, with ten optimized JPEG photographs from the October 10, 2026 visit. The sections cover automotive art and history, discourse, practical knowledge, place and identity, field notes, and Works Cited. Photographs enlarge in an accessible dialog. The separate Fun Fact page retains the eagle fluid reveal and its remaining placeholders.

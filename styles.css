@@ -373,3 +373,79 @@ a:focus-visible, summary:focus-visible { outline: 2px solid var(--text); outline
 .eagle-fallback-caption strong { display: block; font-size: 3rem; font-weight: 400; }
 @media (max-width:760px), (pointer:coarse) { .eagle-card { height: 420px; cursor: pointer; } .eagle-hint { font-size: 0; } .eagle-hint::before { content: 'Tap to reveal'; font-size: .58rem; } }
 @media (prefers-reduced-motion:reduce) { .eagle-hint { font-size: 0; transition: none; } .eagle-hint::before { content: 'Select to reveal'; font-size: .58rem; } }
+
+/* Photographs stay in color; the surrounding layout remains dark and quiet. */
+.project-photo { min-width: 0; margin: 0; }
+.photo-open { position: relative; display: block; width: 100%; overflow: hidden; padding: 0; border: 1px solid #232320; border-radius: 2px; background: #10110f; color: var(--text); cursor: zoom-in; }
+.photo-open img { display: block; width: 100%; height: auto; }
+.photo-open:focus-visible, .photo-close:focus-visible { outline: 2px solid var(--text); outline-offset: 5px; }
+.photo-expand { position: absolute; right: .8rem; bottom: .8rem; padding: .6rem .75rem; background: rgba(5,5,5,.78); font-size: .65rem; letter-spacing: .03em; }
+.project-photo figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; margin-top: .85rem; color: var(--muted); font-size: .7rem; line-height: 1.6; }
+.project-photo figcaption span { color: #8e8e85; }
+.museum-layout { align-items: start; }
+.fieldnotes-layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); align-items: start; gap: 1.5rem; }
+.photo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.photo-slot { min-width: 0; aspect-ratio: 4 / 3; border: 1px solid #232320; background: #0b0b0a; }
+.photo-slot-wide { grid-column: 1 / -1; aspect-ratio: 16 / 9; }
+.photo-viewing { overflow: hidden; }
+.photo-dialog { width: min(1200px, calc(100vw - 2rem)); max-width: none; max-height: calc(100svh - 2rem); padding: 3.5rem 1rem 1rem; border: 1px solid #33332d; border-radius: 2px; background: #0b0b0a; color: var(--text); }
+.photo-dialog:not([open]) { display: none; }
+.photo-dialog::backdrop { background: rgba(0,0,0,.9); }
+.photo-dialog figure { margin: 0; }
+.photo-dialog img { display: block; width: 100%; height: min(72svh, 800px); object-fit: contain; }
+.photo-dialog figcaption { margin-top: .8rem; color: var(--muted); font-size: .75rem; line-height: 1.6; }
+.photo-close { position: absolute; top: .5rem; right: .5rem; min-height: 44px; padding: .65rem 1rem; border: 1px solid #45453d; background: #151512; color: var(--text); font: inherit; font-size: .75rem; cursor: pointer; }
+@media (max-width:760px) {
+  .fieldnotes-layout { grid-template-columns: 1fr; gap: 1.5rem; }
+  .photo-grid { gap: .75rem; }
+  .photo-slot .placeholder-label { padding: .75rem; font-size: .55rem; }
+  .photo-dialog { width: calc(100vw - 1rem); max-height: calc(100svh - 1rem); padding-inline: .75rem; }
+  .photo-dialog img { height: 65svh; }
+}
+
+/* The finished field study: readable chapters with photographs as evidence. */
+.site-content .placeholder-section { min-height: 0; padding-block: clamp(3.5rem, 7vw, 6.5rem); }
+.project-kicker { margin: 0 0 1.8rem; color: #b7a488; font-size: .66rem; line-height: 1.8; letter-spacing: .15em; text-transform: uppercase; }
+.project-introduction h1 { margin: 0; max-width: 1000px; font: 400 clamp(2.8rem, 6.2vw, 5.5rem)/1.08 Georgia, serif; letter-spacing: -.045em; }
+.project-byline { display: flex; flex-wrap: wrap; gap: .8rem 2rem; margin: 1.7rem 0 2rem; font-size: .8rem; color: var(--muted); }
+.project-byline span { color: #92928a; }
+.chapter-links { display: flex; flex-wrap: wrap; gap: .7rem 1.8rem; padding-block: 1.3rem; margin-bottom: clamp(3rem, 6vw, 5rem); border-block: 1px solid #2b2b27; }
+.chapter-links a { color: #c2b49d; font-size: .75rem; text-decoration: none; padding-block: .5rem; }
+.chapter-links a:hover { color: #fff; }
+.editorial-pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: clamp(2rem, 4vw, 4rem); }
+.editorial-pair h2, .editorial-pair h3, .conclusion h3, .project-about h3 { margin: 0 0 1.4rem; font: 400 clamp(1.5rem, 2.3vw, 2rem)/1.25 Georgia, serif; letter-spacing: -.02em; }
+.prose { max-width: 70ch; color: #d0cdc5; font-size: clamp(.96rem, 1.1vw, 1.04rem); line-height: 1.85; }
+.prose p { margin: 0 0 1.3rem; }
+.prose p:last-child { margin-bottom: 0; }
+.prose a { text-underline-offset: .2em; }
+.editorial-pair > .project-photo { position: sticky; top: calc(var(--header-height) + 2rem); }
+.portrait-photo { width: 100%; }
+.portrait-photo .photo-open img { max-height: 560px; object-fit: contain; }
+.chapter-gallery { margin-top: clamp(2.5rem, 5vw, 4.5rem); gap: 1.5rem; }
+.chapter-subsection { margin-top: clamp(3.5rem, 6vw, 5.5rem); }
+.conclusion { max-width: 760px; margin: clamp(3.5rem, 6vw, 5.5rem) auto 0; padding-top: 2.5rem; border-top: 1px solid #37352f; }
+.section-intro { color: #b7a488; font-size: .8rem; line-height: 1.8; }
+.notes-method { max-width: 65ch; margin: 1rem 0 2.5rem; color: var(--muted); font-size: .9rem; line-height: 1.8; }
+.fieldnote-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 2.5rem; }
+.fieldnote { padding: 1.8rem 0; border-top: 1px solid #2b2b27; }
+.fieldnote h3 { margin: 0 0 1.2rem; font-size: 1rem; font-weight: 500; }
+.fieldnote p { margin: 0 0 1rem; color: #c2bfb6; font-size: .88rem; line-height: 1.8; }
+.fieldnote p:last-child { margin-bottom: 0; }
+.fieldnote p span { display: block; margin-bottom: .3rem; color: #b7a488; font-size: .61rem; letter-spacing: .1em; text-transform: uppercase; }
+.project-about { margin-top: 3rem; padding: 2.5rem 0 0; border-top: 1px solid #37352f; }
+.photo-credit { max-width: 75ch; margin: 1.7rem 0 0; color: #92928a; font-size: .75rem; line-height: 1.8; }
+.works-cited { display: grid; gap: 1.4rem; max-width: 85ch; margin: 0; padding: 0; list-style: none; color: #c2bfb6; font-size: .86rem; line-height: 1.9; }
+.works-cited li { padding-left: 1.4rem; text-indent: -1.4rem; overflow-wrap: anywhere; }
+.works-cited a { color: #b7a488; text-decoration-thickness: 1px; text-underline-offset: .2em; }
+@media (max-width:760px) {
+  .editorial-pair, .fieldnote-grid { grid-template-columns: 1fr; }
+  .editorial-pair > .project-photo { position: static; }
+  .museum-pair > .project-photo { order: 2; }
+  .chapter-subsection > .project-photo { order: 2; }
+  .portrait-photo .photo-open img { max-height: 470px; }
+  .chapter-gallery { grid-template-columns: 1fr; gap: 2rem; }
+  .placeholder-heading { gap: .8rem; }
+  .placeholder-heading h2 { font-size: 1.8rem; }
+  .project-byline { font-size: .75rem; }
+  .chapter-links { gap: .3rem 1.2rem; }
+}

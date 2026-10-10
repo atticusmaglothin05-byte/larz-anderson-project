@@ -38,6 +38,32 @@
 
   header.querySelector('.site-title').addEventListener('click', () => setMenuOpen(false));
 
+  // Photo viewing is independent of the scroll intro and its loading state.
+  const photoDialog = document.getElementById('photoDialog');
+  if (photoDialog && typeof photoDialog.showModal === 'function') {
+    const dialogImage = document.getElementById('photoDialogImage');
+    const dialogCaption = document.getElementById('photoDialogCaption');
+    document.querySelectorAll('[data-photo-view]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const image = button.querySelector('img');
+        if (!image) return;
+        dialogImage.src = button.dataset.photoFull || image.currentSrc || image.src;
+        dialogImage.alt = image.alt;
+        dialogCaption.textContent = button.closest('figure')?.querySelector('figcaption')?.textContent.trim() || image.alt;
+        photoDialog.showModal();
+        document.body.classList.add('photo-viewing');
+      });
+    });
+    photoDialog.querySelector('.photo-close').addEventListener('click', () => photoDialog.close());
+    photoDialog.addEventListener('click', (event) => {
+      if (event.target === photoDialog) photoDialog.close();
+    });
+    photoDialog.addEventListener('close', () => {
+      document.body.classList.remove('photo-viewing');
+      dialogImage.removeAttribute('src');
+    });
+  }
+
   if (!section || !video) return;
   const stage = section.querySelector('.intro-stage');
 
