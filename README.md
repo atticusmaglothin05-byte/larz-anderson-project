@@ -20,4 +20,6 @@ To change how much scrolling controls the intro, edit `--intro-scroll-length` ne
 
 ## Project content
 
-The homepage contains the final “Automotive Literacy at Larz Anderson” written portion by Atticus Maglothin, with ten optimized JPEG photographs from the October 10, 2026 visit. The sections cover automotive art and history, discourse, practical knowledge, place and identity, field notes, and Works Cited. Photographs enlarge in an accessible dialog. The separate Fun Fact page retains the eagle fluid reveal and its remaining placeholders.
+The homepage contains the final “Automotive Literacy at Larz Anderson” analysis by Atticus Maglothin, with ten optimized JPEG photographs from the October 10, 2026 visit. The presentation uses cinematic photography, a near-black palette, expansive typography, full-screen navigation, and sharp image reveals after loading. The Field Notes section has been removed. The full analysis, project description, and Works Cited remain.
+
+The aerial introduction still follows scrolling and includes an “Enter the study” shortcut. The separate Fun Fact page retains the eagle fluid reveal in the same visual system. Image viewing, keyboard navigation, reduced motion, and JavaScript-free content display are supported. Image reveals use IntersectionObserver and decode completion; all photographs remain visible if JavaScript or motion support is unavailable.

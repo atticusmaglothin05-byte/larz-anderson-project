@@ -11,6 +11,10 @@
 
   function setMenuOpen(open, restoreFocus = false) {
     navigation.hidden = !open;
+    document.body.classList.toggle('menu-open', open);
+    document.querySelectorAll('body > main, body > section, body > footer').forEach((element) => {
+      element.inert = open;
+    });
     menuToggle.setAttribute('aria-expanded', String(open));
     menuToggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
     if (restoreFocus) menuToggle.focus();
@@ -26,6 +30,12 @@
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && !navigation.hidden) setMenuOpen(false, true);
+    if (event.key === 'Tab' && !navigation.hidden) {
+      const controls = [...header.querySelectorAll('a[href], button')].filter((element) => element.getClientRects().length);
+      const first = controls[0], last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
   });
 
   header.addEventListener('focusout', (event) => {
@@ -38,6 +48,53 @@
 
   header.querySelector('.site-title').addEventListener('click', () => setMenuOpen(false));
 
+  // Reveal decoded photographs with a sharp mask. Content remains visible without JS.
+  if ('IntersectionObserver' in window && !reduceMotion) {
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        revealObserver.unobserve(entry.target);
+        const element = entry.target;
+        const image = element.querySelector('img');
+        const reveal = () => {
+          element.classList.remove('is-pending');
+          element.classList.add('is-revealed');
+        };
+        if (!image || (image.complete && image.naturalWidth)) {
+          if (image?.decode) image.decode().catch(() => {}).then(reveal);
+          else reveal();
+        } else {
+          image.loading = 'eager';
+          image.addEventListener('load', () => {
+            if (image.decode) image.decode().catch(() => {}).then(reveal);
+            else reveal();
+          }, { once: true });
+          image.addEventListener('error', reveal, { once: true });
+          // A slow connection must never leave a photograph permanently masked.
+          window.setTimeout(reveal, 6000);
+        }
+      });
+    }, { threshold: 0.04, rootMargin: '0px 0px -5% 0px' });
+    document.querySelectorAll('[data-reveal], [data-text-reveal]').forEach((element) => {
+      element.classList.add('is-pending');
+      revealObserver.observe(element);
+    });
+  }
+
+  function syncHeader() { header.classList.toggle('is-scrolled', window.scrollY > 30); }
+  window.addEventListener('scroll', syncHeader, { passive: true });
+  syncHeader();
+
+  // Direct source links expand the bibliography as well as navigating to it.
+  function openSources() {
+    if (window.location.hash === '#sources') document.querySelector('.sources-disclosure')?.setAttribute('open', '');
+  }
+  document.querySelectorAll('a[href="#sources"]').forEach((link) => {
+    link.addEventListener('click', () => document.querySelector('.sources-disclosure')?.setAttribute('open', ''));
+  });
+  window.addEventListener('hashchange', openSources);
+  openSources();
+
   // Photo viewing is independent of the scroll intro and its loading state.
   const photoDialog = document.getElementById('photoDialog');
   if (photoDialog && typeof photoDialog.showModal === 'function') {
@@ -49,7 +106,8 @@
         if (!image) return;
         dialogImage.src = button.dataset.photoFull || image.currentSrc || image.src;
         dialogImage.alt = image.alt;
-        dialogCaption.textContent = button.closest('figure')?.querySelector('figcaption')?.textContent.trim() || image.alt;
+        const caption = button.closest('figure')?.querySelector('figcaption');
+        dialogCaption.textContent = caption ? [...caption.childNodes].map((node) => node.textContent.trim()).filter(Boolean).join(' · ') : image.alt;
         photoDialog.showModal();
         document.body.classList.add('photo-viewing');
       });
@@ -83,7 +141,7 @@
   function getProgress() {
     const rect = section.getBoundingClientRect();
     const scrollable = Math.max(section.offsetHeight - stage.offsetHeight, 1);
-    return clamp((header.offsetHeight - rect.top) / scrollable, 0, 1);
+    return clamp(-rect.top / scrollable, 0, 1);
   }
 
   function updateTarget() {
@@ -143,6 +201,10 @@
 
   video.addEventListener('loadeddata', hideLoader, { once: true });
   video.addEventListener('canplay', hideLoader, { once: true });
+  video.addEventListener('error', () => {
+    section.classList.add('intro-unavailable');
+    hideLoader();
+  }, { once: true });
 
   // Never leave the visitor trapped behind the loader if the network is slow.
   window.setTimeout(hideLoader, 5000);
