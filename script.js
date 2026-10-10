@@ -54,7 +54,9 @@
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
         revealObserver.unobserve(entry.target);
-        const element = entry.target;
+        // Observe the unmasked figure: a fully clipped image has no intersection.
+        const element = entry.target.matches('.project-photo')
+          ? entry.target.querySelector('[data-reveal]') : entry.target;
         const image = element.querySelector('img');
         const reveal = () => {
           element.classList.remove('is-pending');
@@ -77,7 +79,7 @@
     }, { threshold: 0.04, rootMargin: '0px 0px -5% 0px' });
     document.querySelectorAll('[data-reveal], [data-text-reveal]').forEach((element) => {
       element.classList.add('is-pending');
-      revealObserver.observe(element);
+      revealObserver.observe(element.matches('[data-reveal]') ? element.closest('figure') : element);
     });
   }
 
