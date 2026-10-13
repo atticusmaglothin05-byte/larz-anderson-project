@@ -127,11 +127,8 @@
   if (!section || !video) return;
   const stage = section.querySelector('.intro-stage');
 
-  // Use a smaller encode on phones/tablets to reduce startup bandwidth.
-  const mobile = window.matchMedia('(max-width: 760px)').matches;
-  video.src = mobile
-    ? 'assets/larz-intro-scroll-720.mp4?v=20261008'
-    : 'assets/larz-intro-scroll.mp4?v=20261008';
+  // Use the supplied original on every screen size; the layout fits the full frame.
+  video.src = 'assets/larz-v2-final.mp4?v=20261013';
 
   let duration = 0;
   let targetTime = 0;
@@ -143,7 +140,7 @@
   function getProgress() {
     const rect = section.getBoundingClientRect();
     const scrollable = Math.max(section.offsetHeight - stage.offsetHeight, 1);
-    return clamp(-rect.top / scrollable, 0, 1);
+    return clamp((header.offsetHeight - rect.top) / scrollable, 0, 1);
   }
 
   function updateTarget() {

@@ -7,8 +7,7 @@ Static website for the Larz Anderson Auto Museum project. The opening sequence i
 - `index.html` — page structure
 - `styles.css` — layout and visual styling
 - `script.js` — scroll-to-video synchronization
-- `assets/larz-intro-scroll.mp4` — 1080p desktop intro
-- `assets/larz-intro-scroll-720.mp4` — lighter mobile intro
+- `assets/larz-v2-final.mp4` — original uploaded intro, used at full source quality on all devices
 - `assets/larz-poster.jpg` — loading/poster image
 - `.github/workflows/deploy-pages.yml` — automatic GitHub Pages deployment
 
@@ -22,4 +21,4 @@ To change how much scrolling controls the intro, edit `--intro-scroll-length` ne
 
 The homepage contains the final “Automotive Literacy at Larz Anderson” analysis by Atticus Maglothin, with ten optimized JPEG photographs from the October 10, 2026 visit. The presentation uses cinematic photography, a near-black palette, expansive typography, full-screen navigation, and sharp image reveals after loading. The Field Notes section has been removed. The full analysis, project description, and Works Cited remain.
 
-The aerial introduction still follows scrolling and includes an “Enter the study” shortcut. The separate Fun Fact page retains the eagle fluid reveal in the same visual system. Image viewing, keyboard navigation, reduced motion, and JavaScript-free content display are supported. Image reveals use IntersectionObserver and decode completion; all photographs remain visible if JavaScript or motion support is unavailable.
+The aerial introduction follows scrolling beneath a separate 72px header (64px on phones), with the full video frame visible. The source MP4 is unchanged and is used on every screen size. Photographs, including the hero image, open directly when clicked or activated with the keyboard; there are no corner shortcuts or image labels. The separate Fun Fact page retains the eagle fluid reveal in the same visual system. Image viewing, keyboard navigation, reduced motion, and JavaScript-free content display are supported. Image reveals use IntersectionObserver and decode completion; all photographs remain visible if JavaScript or motion support is unavailable.
