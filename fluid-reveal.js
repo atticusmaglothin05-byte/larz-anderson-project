@@ -94,9 +94,9 @@ function initReveal(card) {
       // Interpolate the path while keeping the total impulse independent of
       // pointer event frequency; momentum continues after the cursor stops.
       const amount=Math.min(.8,.22+distance*.06)/steps;
-      for(let n=1;n<=steps;n++) field.splat(lastPoint.x+(x-lastPoint.x)*n/steps,lastPoint.y+(y-lastPoint.y)*n/steps,dx/Math.sqrt(steps),dy/Math.sqrt(steps),5.5,amount);
+      for(let n=1;n<=steps;n++) field.splat(lastPoint.x+(x-lastPoint.x)*n/steps,lastPoint.y+(y-lastPoint.y)*n/steps,dx/Math.sqrt(steps),dy/Math.sqrt(steps),7,amount);
     } else {
-      field.splat(x,y,0,0,5.5,.48);
+      field.splat(x,y,0,0,7,.48);
     }
     pointer={x,y,time:event.timeStamp};lastPoint=pointer;wake();
   }
