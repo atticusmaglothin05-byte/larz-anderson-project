@@ -87,16 +87,6 @@
   window.addEventListener('scroll', syncHeader, { passive: true });
   syncHeader();
 
-  // Direct source links expand the bibliography as well as navigating to it.
-  function openSources() {
-    if (window.location.hash === '#sources') document.querySelector('.sources-disclosure')?.setAttribute('open', '');
-  }
-  document.querySelectorAll('a[href="#sources"]').forEach((link) => {
-    link.addEventListener('click', () => document.querySelector('.sources-disclosure')?.setAttribute('open', ''));
-  });
-  window.addEventListener('hashchange', openSources);
-  openSources();
-
   // Photo viewing is independent of the scroll intro and its loading state.
   const photoDialog = document.getElementById('photoDialog');
   if (photoDialog && typeof photoDialog.showModal === 'function') {
@@ -224,3 +214,4 @@
 
   video.load();
 })();
+

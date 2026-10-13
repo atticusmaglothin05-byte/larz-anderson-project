@@ -1,4 +1,4 @@
-import { FluidField } from './fluid-field.mjs';
+import { FluidField } from './fluid-field.mjs?v=liquid-20261013';
 
 const card = document.getElementById('eagleReveal');
 if (card) initReveal(card);
@@ -28,7 +28,7 @@ function initReveal(card) {
     dpr=Math.min(window.devicePixelRatio||1,1.5);
     canvas.width=layer.width=Math.round(width*dpr); canvas.height=layer.height=Math.round(height*dpr);
     context.setTransform(dpr,0,0,dpr,0,0); layerContext.setTransform(dpr,0,0,dpr,0,0);
-    const simulationWidth=144,simulationHeight=Math.max(48,Math.round(144*height/width));
+    const simulationWidth=192,simulationHeight=Math.max(48,Math.round(192*height/width));
     field=new FluidField(simulationWidth,simulationHeight);
     mask.width=simulationWidth;mask.height=simulationHeight;
     pixels=maskContext.createImageData(simulationWidth,simulationHeight);
@@ -53,9 +53,9 @@ function initReveal(card) {
     layerContext.font=`${Math.max(48,Math.min(88,width*.12))}px Georgia, serif`;
     layerContext.fillText('1954',width/2,height*.94);
     if (!revealed) {
-      // Thresholding the advected dye gives the reveal a soft liquid edge.
+      // Preserve translucent eddies instead of clipping the dye to opaque paint.
       for(let i=0;i<field.size;i++) {
-        const value=Math.max(0,Math.min(1,(field.ink[i]-.055)/.28));
+        const value=Math.max(0,Math.min(1,(field.ink[i]-.018)/.78));
         const alpha=value*value*(3-2*value);
         pixels.data[i*4]=pixels.data[i*4+1]=pixels.data[i*4+2]=255;
         pixels.data[i*4+3]=Math.round(alpha*255);
@@ -70,32 +70,40 @@ function initReveal(card) {
   function tick(time) {
     const dt=Math.min((time-previousTime)/1000 || 1/60,1/30);previousTime=time;
     if(!reduceMotion && !revealed && field) {
-      if(pointer) {
-        const radius=7;
-        field.splat(pointer.x,pointer.y,0,0,radius);
-      }
+      // Only movement injects dye. A stationary cursor lets the flow disperse.
       field.step(dt);
     }
     drawScene(time);
-    const hasInk=field?.ink.some(v=>v>.06);
-    if(inView && !reduceMotion && !revealed && (pointer || hasInk)) requestAnimationFrame(tick);
+    const hasInk=field?.ink.some(v=>v>.018);
+    if(inView && !reduceMotion && !revealed && hasInk) requestAnimationFrame(tick);
     else {running=false;previousTime=0;}
   }
   function wake() {if(!running){running=true;requestAnimationFrame(tick);}}
   function updatePointer(event) {
     if(downPoint && Math.hypot(event.clientX-downPoint.x,event.clientY-downPoint.y)>6) dragged=true;
-    if(event.pointerType==='touch' || reduceMotion || !field) return;
+    if(event.pointerType==='touch' || reduceMotion || revealed || !field) return;
     const rect=card.getBoundingClientRect();
     const x=(event.clientX-rect.left)/rect.width*field.width,y=(event.clientY-rect.top)/rect.height*field.height;
     if(lastPoint) {
-      const dx=Math.max(-55,Math.min(55,(x-lastPoint.x)*9)),dy=Math.max(-55,Math.min(55,(y-lastPoint.y)*9));
-      const distance=Math.hypot(x-lastPoint.x,y-lastPoint.y), steps=Math.min(12,Math.max(1,Math.ceil(distance/3)));
-      for(let n=1;n<=steps;n++) field.splat(lastPoint.x+(x-lastPoint.x)*n/steps,lastPoint.y+(y-lastPoint.y)*n/steps,dx/steps,dy/steps,7);
+      const distance=Math.hypot(x-lastPoint.x,y-lastPoint.y);
+      if(distance<.15) return;
+      const elapsed=Math.max(1/120,Math.min(.05,(event.timeStamp-lastPoint.time)/1000 || 1/60));
+      const speed=Math.min(200,distance/elapsed*.8);
+      const dx=(x-lastPoint.x)/distance*speed,dy=(y-lastPoint.y)/distance*speed;
+      const steps=Math.min(24,Math.max(1,Math.ceil(distance/2.5)));
+      // Interpolate the path while keeping the total impulse independent of
+      // pointer event frequency; momentum continues after the cursor stops.
+      const amount=Math.min(.8,.22+distance*.06)/steps;
+      for(let n=1;n<=steps;n++) field.splat(lastPoint.x+(x-lastPoint.x)*n/steps,lastPoint.y+(y-lastPoint.y)*n/steps,dx/Math.sqrt(steps),dy/Math.sqrt(steps),5.5,amount);
+    } else {
+      field.splat(x,y,0,0,5.5,.48);
     }
-    pointer={x,y};lastPoint=pointer;wake();
+    pointer={x,y,time:event.timeStamp};lastPoint=pointer;wake();
   }
   function setRevealed(value) {
-    revealed=value;card.setAttribute('aria-pressed',String(value));
+    revealed=value;lastPoint=null;pointer=null;
+    if(field){field.ink.fill(0);field.u.fill(0);field.v.fill(0);}
+    card.setAttribute('aria-pressed',String(value));
     card.classList.toggle('is-revealed',value);wake();
   }
   card.addEventListener('pointermove',updatePointer);
@@ -113,3 +121,4 @@ function initReveal(card) {
   current.addEventListener('error',()=>{card.classList.add('has-image-error');});
   resize();
 }
+
