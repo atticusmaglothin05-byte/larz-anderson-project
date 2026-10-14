@@ -125,6 +125,19 @@
   let renderedTime = 0;
   let ticking = false;
   let introConsumed = false;
+
+  // Rewind media too when Safari resets a restored scroll position. A metadata
+  // callback may have already sought to the stale position on initial load.
+  window.addEventListener('intro:reset', () => {
+    if (introConsumed) return;
+    targetTime = renderedTime = 0;
+    if (video.readyState >= 1) {
+      try { video.currentTime = 0; } catch {}
+    }
+    progressBar.style.transform = 'scaleX(0)';
+    scrollCue.classList.remove('is-hidden');
+  });
+
   window.addEventListener('intro:consumed', () => {
     introConsumed = true;
     window.removeEventListener('scroll', updateTarget);
@@ -183,8 +196,11 @@
     duration = Number.isFinite(video.duration) ? video.duration : 0;
 
     if (reduceMotion) {
-      video.currentTime = Math.min(duration * 0.72, Math.max(duration - 0.05, 0));
-      progressBar.style.transform = 'scaleX(1)';
+      // Keep a still first frame rather than dropping visitors near the end.
+      // The reduced-motion visitor can scroll past this short static scene.
+      video.currentTime = 0;
+      progressBar.style.transform = 'scaleX(0)';
+      scrollCue.classList.remove('is-hidden');
       hideLoader();
       return;
     }
