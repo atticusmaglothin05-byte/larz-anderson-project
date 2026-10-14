@@ -38,13 +38,50 @@ function initIntroBurn() {
   let sparks = [];
   let previousTime = 0;
   let changedScrollRestoration = false;
-  const originalScrollRestoration = history.scrollRestoration;
-  // A reload must replay the aerial from its beginning. Browser restoration can
-  // otherwise put a fresh page straight at the old intro endpoint before load.
-  if (performance.getEntriesByType('navigation')[0]?.type === 'reload') {
-    history.scrollRestoration = 'manual';
-    changedScrollRestoration = true;
-    window.scrollTo({top: 0, left: 0, behavior: 'instant'});
+  const initialTarget = document.getElementById(location.hash.slice(1));
+  const contentDeepLink = initialTarget && (initialTarget === main || main.contains(initialTarget));
+  let introArmed = false;
+  let userAdvanced = false;
+  let previousScrollY = window.scrollY;
+
+  // Safari can restore the previous scroll position after a page has loaded.
+  // Never interpret that restoration, a resize, or initial layout as a real
+  // gesture completing the aerial introduction.
+  if (!contentDeepLink) {
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+      changedScrollRestoration = true;
+    }
+    window.scrollTo(0, 0);
+    previousScrollY = window.scrollY;
+  }
+
+  function nearStart() {
+    const startRange = Math.max(96, Math.min(220, (intro.offsetHeight - stage.offsetHeight) * .08));
+    return window.scrollY <= startRange;
+  }
+
+  function armIntro() {
+    if (state === 'intro' && nearStart()) introArmed = true;
+  }
+
+  function onScrollKey(event) {
+    if (['ArrowDown', 'PageDown', 'End', ' '].includes(event.key)) armIntro();
+  }
+
+  function onScroll() {
+    if (state !== 'intro') return;
+    const nextY = window.scrollY;
+    if (introArmed && nextY > previousScrollY + .5) userAdvanced = true;
+    previousScrollY = nextY;
+    checkEnd();
+  }
+
+  function resetRestoredScroll() {
+    if (state !== 'intro' || contentDeepLink || introArmed) return;
+    if (window.scrollY > 0) window.scrollTo({top: 0, left: 0, behavior: 'instant'});
+    previousScrollY = window.scrollY;
+    window.dispatchEvent(new Event('intro:reset'));
   }
   const blockScroll = event => event.preventDefault();
   const blockKeys = event => {
@@ -60,7 +97,11 @@ function initIntroBurn() {
     if (location.hash === '#scrollSequence') history.replaceState(null, '', location.pathname + location.search);
     root.classList.add('intro-consumed');
     intro.remove();
-    window.removeEventListener('scroll', checkEnd);
+    window.removeEventListener('scroll', onScroll);
+    window.removeEventListener('wheel', armIntro);
+    window.removeEventListener('touchstart', armIntro);
+    window.removeEventListener('keydown', onScrollKey);
+    window.removeEventListener('pageshow', resetRestoredScroll);
   }
 
   function resize() {
@@ -87,7 +128,7 @@ function initIntroBurn() {
     window.removeEventListener('keydown', blockKeys);
     window.removeEventListener('resize', resize);
     document.removeEventListener('visibilitychange', onVisibility);
-    if (changedScrollRestoration) history.scrollRestoration = originalScrollRestoration;
+    if (changedScrollRestoration) history.scrollRestoration = 'auto';
     window.scrollTo({top: 0, left: 0, behavior: 'instant'});
     if (document.activeElement === document.body || document.activeElement?.closest('.site-header')) {
       main.tabIndex = -1;
@@ -188,7 +229,7 @@ function initIntroBurn() {
   }
 
   function checkEnd() {
-    if (state !== 'intro') return;
+    if (state !== 'intro' || !introArmed || !userAdvanced) return;
     const remaining = intro.getBoundingClientRect().bottom - stage.offsetHeight - header.offsetHeight;
     if (remaining <= 2) ignite();
   }
@@ -206,16 +247,21 @@ function initIntroBurn() {
     history.replaceState(null, '', `#${id}`);
   });
   motion.addEventListener('change', () => { if (motion.matches && state === 'burning') finish(); });
-  window.addEventListener('scroll', checkEnd, {passive: true});
-  window.addEventListener('resize', checkEnd, {passive: true});
-  window.addEventListener('pageshow', checkEnd);
+  window.addEventListener('wheel', armIntro, {passive: true});
+  window.addEventListener('touchstart', armIntro, {passive: true});
+  window.addEventListener('keydown', onScrollKey);
+  window.addEventListener('scroll', onScroll, {passive: true});
+  window.addEventListener('pageshow', resetRestoredScroll);
   window.addEventListener('load', () => {
     const target = document.getElementById(location.hash.slice(1));
     if (state === 'intro' && target && (target === main || main.contains(target))) {
-      finish(); target.scrollIntoView({behavior: 'instant', block: 'start'});
-    } else checkEnd();
+      finish();
+      target.scrollIntoView({behavior: 'instant', block: 'start'});
+    } else {
+      resetRestoredScroll();
+    }
   }, {once: true});
-  checkEnd();
+  requestAnimationFrame(resetRestoredScroll);
 }
 
 if (typeof document !== 'undefined') initIntroBurn();
