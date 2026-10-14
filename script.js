@@ -119,6 +119,7 @@
 
   // Use the supplied original on every screen size; the layout fits the full frame.
   video.src = 'assets/larz-v2-final.mp4?v=20261013';
+  let attemptedFallback = false;
 
   let duration = 0;
   let targetTime = 0;
@@ -216,9 +217,21 @@
   video.addEventListener('loadeddata', hideLoader, { once: true });
   video.addEventListener('canplay', hideLoader, { once: true });
   video.addEventListener('error', () => {
-    if (!introConsumed) section.classList.add('intro-unavailable');
+    if (introConsumed) { hideLoader(); return; }
+    if (!attemptedFallback) {
+      // Some iPad/WebKit versions refuse the larger Google Earth render.
+      // Try the compatible smaller encode instead of dropping the entire intro.
+      attemptedFallback = true;
+      duration = 0;
+      targetTime = renderedTime = 0;
+      video.src = 'assets/larz-intro-scroll-720.mp4?v=20261014';
+      video.load();
+      return;
+    }
+    // Preserve the complete intro/scroll path, with the poster as fallback.
+    section.classList.add('intro-unavailable');
     hideLoader();
-  }, { once: true });
+  });
 
   // Never leave the visitor trapped behind the loader if the network is slow.
   window.setTimeout(hideLoader, 5000);
