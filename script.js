@@ -119,26 +119,12 @@
 
   // Use the supplied original on every screen size; the layout fits the full frame.
   video.src = 'assets/larz-v2-final.mp4?v=20261013';
-  let attemptedFallback = false;
 
   let duration = 0;
   let targetTime = 0;
   let renderedTime = 0;
   let ticking = false;
   let introConsumed = false;
-
-  // Rewind media too when Safari resets a restored scroll position. A metadata
-  // callback may have already sought to the stale position on initial load.
-  window.addEventListener('intro:reset', () => {
-    if (introConsumed) return;
-    targetTime = renderedTime = 0;
-    if (video.readyState >= 1) {
-      try { video.currentTime = 0; } catch {}
-    }
-    progressBar.style.transform = 'scaleX(0)';
-    scrollCue.classList.remove('is-hidden');
-  });
-
   window.addEventListener('intro:consumed', () => {
     introConsumed = true;
     window.removeEventListener('scroll', updateTarget);
@@ -197,11 +183,8 @@
     duration = Number.isFinite(video.duration) ? video.duration : 0;
 
     if (reduceMotion) {
-      // Keep a still first frame rather than dropping visitors near the end.
-      // The reduced-motion visitor can scroll past this short static scene.
-      video.currentTime = 0;
-      progressBar.style.transform = 'scaleX(0)';
-      scrollCue.classList.remove('is-hidden');
+      video.currentTime = Math.min(duration * 0.72, Math.max(duration - 0.05, 0));
+      progressBar.style.transform = 'scaleX(1)';
       hideLoader();
       return;
     }
@@ -217,21 +200,9 @@
   video.addEventListener('loadeddata', hideLoader, { once: true });
   video.addEventListener('canplay', hideLoader, { once: true });
   video.addEventListener('error', () => {
-    if (introConsumed) { hideLoader(); return; }
-    if (!attemptedFallback) {
-      // Some iPad/WebKit versions refuse the larger Google Earth render.
-      // Try the compatible smaller encode instead of dropping the entire intro.
-      attemptedFallback = true;
-      duration = 0;
-      targetTime = renderedTime = 0;
-      video.src = 'assets/larz-intro-scroll-720.mp4?v=20261014';
-      video.load();
-      return;
-    }
-    // Preserve the complete intro/scroll path, with the poster as fallback.
-    section.classList.add('intro-unavailable');
+    if (!introConsumed) section.classList.add('intro-unavailable');
     hideLoader();
-  });
+  }, { once: true });
 
   // Never leave the visitor trapped behind the loader if the network is slow.
   window.setTimeout(hideLoader, 5000);
