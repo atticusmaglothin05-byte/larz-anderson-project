@@ -124,6 +124,13 @@
   let targetTime = 0;
   let renderedTime = 0;
   let ticking = false;
+  let introConsumed = false;
+  window.addEventListener('intro:consumed', () => {
+    introConsumed = true;
+    window.removeEventListener('scroll', updateTarget);
+    window.removeEventListener('resize', updateTarget);
+    video.pause();
+  }, { once: true });
 
   const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
@@ -134,7 +141,7 @@
   }
 
   function updateTarget() {
-    if (!duration || reduceMotion) return;
+    if (introConsumed || !duration || reduceMotion) return;
 
     const progress = getProgress();
     targetTime = progress * Math.max(duration - 0.035, 0);
@@ -148,6 +155,7 @@
   }
 
   function renderFrame() {
+    if (introConsumed) { ticking = false; return; }
     // A small amount of interpolation prevents wheel/trackpad steps from looking abrupt.
     renderedTime += (targetTime - renderedTime) * 0.28;
 
@@ -171,6 +179,7 @@
   }
 
   video.addEventListener('loadedmetadata', () => {
+    if (introConsumed) { hideLoader(); return; }
     duration = Number.isFinite(video.duration) ? video.duration : 0;
 
     if (reduceMotion) {
@@ -191,7 +200,7 @@
   video.addEventListener('loadeddata', hideLoader, { once: true });
   video.addEventListener('canplay', hideLoader, { once: true });
   video.addEventListener('error', () => {
-    section.classList.add('intro-unavailable');
+    if (!introConsumed) section.classList.add('intro-unavailable');
     hideLoader();
   }, { once: true });
 
@@ -205,6 +214,7 @@
     // iOS can restrict video seeking until the media element has been activated once.
     // A muted play/pause on the first touch unlocks it without visibly playing the intro.
     window.addEventListener('touchstart', () => {
+      if (introConsumed) return;
       const playAttempt = video.play();
       if (playAttempt && typeof playAttempt.then === 'function') {
         playAttempt.then(() => video.pause()).catch(() => {});

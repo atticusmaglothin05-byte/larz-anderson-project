@@ -3,19 +3,6 @@ export function smoothstep(value) {
   return t * t * (3 - 2 * t);
 }
 
-export function introTransition(offset, stageHeight) {
-  const raw = Math.max(0, Math.min(1, 1 - offset / Math.max(stageHeight, 1)));
-  const blend = smoothstep(raw);
-  return {
-    blend,
-    lift: Math.max(0, Math.min(stageHeight, offset)),
-    videoOpacity: 1 - blend,
-    titleOpacity: smoothstep((raw - .2) / .8),
-    inset: (1 - blend) * 6,
-    scale: 1 + (1 - blend) * .045
-  };
-}
-
 function initScrollScenes() {
   const root = document.documentElement;
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -51,32 +38,11 @@ function initScrollScenes() {
     });
   }
 
-  const intro = document.getElementById('scrollSequence');
-  const main = document.getElementById('mainContent');
-  const header = document.getElementById('siteHeader');
-  const hero = document.querySelector('.project-hero');
-  const stage = intro?.querySelector('.intro-stage');
-  const video = intro?.querySelector('video');
-  let bridgeEnabled = !!(intro && main && header && hero && stage && video);
   let requested = false;
-  if (bridgeEnabled) root.classList.add('intro-transition-ready');
 
   function render() {
     requested = false;
     if (motion.matches) return;
-    if (bridgeEnabled) {
-      const offset = main.getBoundingClientRect().top - header.offsetHeight;
-      const transition = introTransition(offset, stage.offsetHeight);
-      hero.style.setProperty('--bridge-opacity', transition.blend.toFixed(4));
-      hero.style.setProperty('--bridge-lift', `${transition.lift.toFixed(2)}px`);
-      hero.style.setProperty('--bridge-inset', `${transition.inset.toFixed(3)}%`);
-      hero.style.setProperty('--bridge-scale', transition.scale.toFixed(4));
-      hero.style.setProperty('--bridge-title-opacity', transition.titleOpacity.toFixed(4));
-      hero.style.setProperty('--bridge-title-lift', `${((1 - transition.titleOpacity) * 28).toFixed(2)}px`);
-      hero.style.pointerEvents = transition.blend > .97 ? '' : 'none';
-      video.style.opacity = transition.videoOpacity.toFixed(4);
-      intro.style.setProperty('--bridge-progress-opacity', transition.videoOpacity.toFixed(4));
-    }
     const viewport = window.innerHeight;
     for (const section of sections) {
       const rect = section.getBoundingClientRect();
@@ -92,19 +58,8 @@ function initScrollScenes() {
     requestAnimationFrame(render);
   }
 
-  function disableBridge() {
-    bridgeEnabled = false;
-    root.classList.remove('intro-transition-ready');
-    if (video) video.style.opacity = '';
-    if (hero) hero.style.pointerEvents = '';
-    requestRender();
-  }
-
-  video?.addEventListener('error', disableBridge);
-  video?.addEventListener('loadedmetadata', requestRender);
   motion.addEventListener('change', () => {
     if (!motion.matches) return;
-    disableBridge();
     root.classList.remove('has-scroll-scenes');
     document.querySelectorAll('.scene-pending').forEach(element => element.classList.remove('scene-pending'));
     sections.forEach(element => element.style.removeProperty('--scene-drift'));
