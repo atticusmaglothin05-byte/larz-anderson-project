@@ -39,6 +39,13 @@ function initIntroBurn() {
   let previousTime = 0;
   let changedScrollRestoration = false;
   const originalScrollRestoration = history.scrollRestoration;
+  // A reload must replay the aerial from its beginning. Browser restoration can
+  // otherwise put a fresh page straight at the old intro endpoint before load.
+  if (performance.getEntriesByType('navigation')[0]?.type === 'reload') {
+    history.scrollRestoration = 'manual';
+    changedScrollRestoration = true;
+    window.scrollTo({top: 0, left: 0, behavior: 'instant'});
+  }
   const blockScroll = event => event.preventDefault();
   const blockKeys = event => {
     if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) event.preventDefault();
