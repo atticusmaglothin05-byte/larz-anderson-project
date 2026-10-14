@@ -42,6 +42,8 @@ function initIntroBurn() {
   const contentDeepLink = initialTarget && (initialTarget === main || main.contains(initialTarget));
   let introArmed = false;
   let userAdvanced = false;
+  let visitedMiddle = false;
+  let lastIntentAt = 0;
   let previousScrollY = window.scrollY;
 
   // Safari can restore the previous scroll position after a page has loaded.
@@ -62,7 +64,9 @@ function initIntroBurn() {
   }
 
   function armIntro() {
-    if (state === 'intro' && nearStart()) introArmed = true;
+    if (state !== 'intro') return;
+    if (nearStart()) introArmed = true;
+    if (introArmed) lastIntentAt = performance.now();
   }
 
   function onScrollKey(event) {
@@ -71,9 +75,19 @@ function initIntroBurn() {
 
   function onScroll() {
     if (state !== 'intro') return;
+    // Safari on iPad can restore the page to the old title position well
+    // after DOMContentLoaded/pageshow. Treat any scroll before a real gesture
+    // as restoration and snap the still-unconsumed intro back to its start.
+    if (!introArmed) {
+      resetRestoredScroll();
+      return;
+    }
     const nextY = window.scrollY;
-    if (introArmed && nextY > previousScrollY + .5) userAdvanced = true;
+    if (nextY > previousScrollY + .5) userAdvanced = true;
     previousScrollY = nextY;
+    const total = Math.max(intro.offsetHeight - stage.offsetHeight, 1);
+    const progress = (header.offsetHeight - intro.getBoundingClientRect().top) / total;
+    if (progress > .35 && progress < .95) visitedMiddle = true;
     checkEnd();
   }
 
@@ -99,7 +113,7 @@ function initIntroBurn() {
     intro.remove();
     window.removeEventListener('scroll', onScroll);
     window.removeEventListener('wheel', armIntro);
-    window.removeEventListener('touchstart', armIntro);
+    window.removeEventListener('touchmove', armIntro);
     window.removeEventListener('keydown', onScrollKey);
     window.removeEventListener('pageshow', resetRestoredScroll);
   }
@@ -229,7 +243,10 @@ function initIntroBurn() {
   }
 
   function checkEnd() {
-    if (state !== 'intro' || !introArmed || !userAdvanced) return;
+    if (state !== 'intro' || !introArmed || !userAdvanced || !visitedMiddle) return;
+    // Never burn because of a restored scroll position, viewport resize,
+    // metadata callback, or a delayed jump to an anchor.
+    if (performance.now() - lastIntentAt > 2200) return;
     const remaining = intro.getBoundingClientRect().bottom - stage.offsetHeight - header.offsetHeight;
     if (remaining <= 2) ignite();
   }
@@ -248,7 +265,7 @@ function initIntroBurn() {
   });
   motion.addEventListener('change', () => { if (motion.matches && state === 'burning') finish(); });
   window.addEventListener('wheel', armIntro, {passive: true});
-  window.addEventListener('touchstart', armIntro, {passive: true});
+  window.addEventListener('touchmove', armIntro, {passive: true});
   window.addEventListener('keydown', onScrollKey);
   window.addEventListener('scroll', onScroll, {passive: true});
   window.addEventListener('pageshow', resetRestoredScroll);
