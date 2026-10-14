@@ -93,7 +93,7 @@ function initIntroBurn() {
 
   function resetRestoredScroll() {
     if (state !== 'intro' || contentDeepLink || introArmed) return;
-    if (window.scrollY > 0) window.scrollTo({top: 0, left: 0, behavior: 'instant'});
+    if (window.scrollY > 0) window.scrollTo(0, 0);
     previousScrollY = window.scrollY;
     window.dispatchEvent(new Event('intro:reset'));
   }
@@ -143,7 +143,7 @@ function initIntroBurn() {
     window.removeEventListener('resize', resize);
     document.removeEventListener('visibilitychange', onVisibility);
     if (changedScrollRestoration) history.scrollRestoration = 'auto';
-    window.scrollTo({top: 0, left: 0, behavior: 'instant'});
+    window.scrollTo(0, 0);
     if (document.activeElement === document.body || document.activeElement?.closest('.site-header')) {
       main.tabIndex = -1;
       main.focus({preventScroll: true});
@@ -229,7 +229,7 @@ function initIntroBurn() {
     if (scrollbar > 0) document.body.style.setProperty('--burn-scrollbar', `${scrollbar}px`);
     root.classList.add('intro-burn-running');
     unlinkIntro();
-    window.scrollTo({top: 0, left: 0, behavior: 'instant'});
+    window.scrollTo(0, 0);
     document.getElementById('loadingScreen')?.classList.add('is-hidden');
     window.addEventListener('wheel', blockScroll, {passive: false});
     window.addEventListener('touchmove', blockScroll, {passive: false});
@@ -260,7 +260,7 @@ function initIntroBurn() {
     if (state !== 'intro' || !target || !(target === main || main.contains(target))) return;
     event.preventDefault();
     finish();
-    target.scrollIntoView({behavior: 'instant', block: 'start'});
+    target.scrollIntoView({behavior: 'auto', block: 'start'});
     history.replaceState(null, '', `#${id}`);
   });
   motion.addEventListener('change', () => { if (motion.matches && state === 'burning') finish(); });
@@ -273,7 +273,7 @@ function initIntroBurn() {
     const target = document.getElementById(location.hash.slice(1));
     if (state === 'intro' && target && (target === main || main.contains(target))) {
       finish();
-      target.scrollIntoView({behavior: 'instant', block: 'start'});
+      target.scrollIntoView({behavior: 'auto', block: 'start'});
     } else {
       resetRestoredScroll();
     }
