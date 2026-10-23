@@ -115,3 +115,7 @@ html.intro-handoff-running{overflow:hidden;overflow-anchor:none}
  .intro-consumed .project-hero{height:auto}.detail-layout{display:block}.reading-perspective{position:static;background:white;color:black}
  .detail-notes article[hidden],.perspective-readings article[hidden]{display:block!important;margin-top:1rem}
 }
+
+/* Keep the aerial on screen even when a fast scroll outruns the scroll event. */
+.scroll-sequence .intro-stage{position:fixed;left:0;right:0;z-index:20}
+@media(prefers-reduced-motion:reduce){.scroll-sequence .intro-stage{position:sticky;left:auto;right:auto;z-index:auto}}
