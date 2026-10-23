@@ -69,3 +69,7 @@ html.intro-drive-running{overflow:hidden;scroll-behavior:auto;overflow-anchor:no
 .intro-drive-running .project-hero,.intro-consumed .project-hero{height:calc(100svh - var(--header-height));min-height:0;max-height:none}
 .intro-drive-running .car-cursor-layer{visibility:hidden}
 @media print{.intro-drive-layer{display:none!important}.intro-consumed .project-hero{height:auto}}
+
+/* Opening photograph beneath the heading; a single engineering detail below. */
+.introduction-photo{margin-top:clamp(2rem,4vw,4rem)}
+.detail-gallery-single{grid-template-columns:minmax(0,1fr)}
