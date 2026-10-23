@@ -109,9 +109,9 @@ function initIntroDrive() {
     rig.className = 'intro-drive-rig';
     const car = document.createElement('img');
     car.className = 'intro-drive-car';
-    car.src = new URL('./assets/huracan-drive.svg', import.meta.url).href;
+    car.src = new URL('./assets/lexus-lfa-drive.png', import.meta.url).href;
     car.alt = '';
-    car.width = 640; car.height = 240;
+    car.width = 2172; car.height = 724;
     const rope = document.createElement('span');
     rope.className = 'intro-drive-rope';
     const quote = document.createElement('blockquote');

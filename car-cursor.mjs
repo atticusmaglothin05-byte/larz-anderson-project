@@ -4,7 +4,7 @@ export const TRACK_LIFETIME = 3400;
 export const TRACK_DISTANCE = 760;
 export const SMOKE_DISTANCE = 44;
 export const TRAIL_QUOTE = 'Sometimes I stagger even myself with my genius';
-export const LETTER_SPACING = 9;
+export const LETTER_SPACING = 8.55;
 const TRAIL_TEXT = TRAIL_QUOTE + '  ·  ';
 
 function angleDifference(target, angle) {
@@ -191,7 +191,7 @@ function initCarCursor() {
       if (!active || !visible || !car.positioned) return;
       car.steer(now, reducedMotion.matches);
       car.prune(now);
-      context.font = '700 12px ui-monospace, SFMono-Regular, Consolas, monospace';
+      context.font = '700 11.4px ui-monospace, SFMono-Regular, Consolas, monospace';
       context.textAlign = 'center';
       context.textBaseline = 'middle';
       // The two tire prints are the sentence itself, following the driven path.
@@ -203,7 +203,7 @@ function initCarCursor() {
           context.rotate(track.angle);
           // A thin light edge keeps black rubber lettering visible over the
           // dark site, while the filled letter still reads as a tire print.
-          context.lineWidth = 1.3;
+          context.lineWidth = 1.235;
           context.strokeStyle = `rgba(220,220,207,${alpha * .68})`;
           context.fillStyle = `rgba(0,0,0,${alpha})`;
           context.strokeText(track.letter, 0, 0);
