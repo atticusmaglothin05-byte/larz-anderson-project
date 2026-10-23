@@ -27,7 +27,7 @@ main{position:relative;background:var(--bg)}.project-hero{min-height:760px;heigh
 html.intro-handoff-running{overflow:hidden;overflow-anchor:none}
 .intro-handoff-running body{position:fixed;inset:0;overflow:hidden;padding-right:var(--handoff-scrollbar,0px)}
 .intro-handoff-layer{position:fixed;inset:var(--header-height) var(--handoff-scrollbar,0px) 0 0;z-index:79;pointer-events:none;overflow:hidden;opacity:1;transition:opacity 650ms cubic-bezier(.4,0,.2,1)}
-.intro-handoff-layer .intro-stage{position:absolute;inset:0;height:100%;background:#000}
+.intro-handoff-layer .intro-freeze{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
 .intro-handoff-layer .intro-bottom,.intro-handoff-layer .intro-progress,.intro-handoff-layer .intro-skip{display:none}
 .intro-handoff-layer.is-leaving{opacity:0}
 .intro-consumed .project-hero{height:calc(100svh - var(--header-height));min-height:0;max-height:none}
@@ -83,7 +83,7 @@ html.intro-handoff-running{overflow:hidden;overflow-anchor:none}
 .is-interactive .detail-notes article,.is-interactive .perspective-readings article{animation:quietConclusion 250ms ease}
 
 /* A change of interpretation, with the same image held in view. */
-.reading-perspective{position:sticky;top:calc(var(--header-height) + 28px);padding:clamp(1.2rem,2.5vw,2.2rem);border:1px solid var(--line);background:#121515}
+.reading-perspective{position:relative;padding:clamp(1.2rem,2.5vw,2.2rem);border:1px solid var(--line);background:#121515}
 .reading-perspective header h3{font-size:clamp(1.9rem,3vw,3rem);line-height:1.08;letter-spacing:-.04em;margin:.75rem 0 1.5rem}
 .reading-perspective header h3 em{color:#b4b9b2}
 .perspective-switch{display:none;gap:4px;background:#080909;padding:4px;border:1px solid var(--line);margin-bottom:1.4rem}

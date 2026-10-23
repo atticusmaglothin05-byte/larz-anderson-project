@@ -64,15 +64,30 @@ function initIntroHandoff() {
     if (state !== 'intro') return;
     state = 'fading';
     if (motion.matches) { finish(); return; }
-    // Move the actual video, preserving its decoded frame. The hero is already
-    // laid out beneath it before opacity changes, so there is no empty frame.
+    // Snapshot the rendered frame before retiring the video. Reparenting a
+    // video can reset its composited surface, especially in WebKit.
     layer = document.createElement('div');
     layer.className = 'intro-handoff-layer';
     layer.setAttribute('aria-hidden', 'true');
     layer.inert = true;
-    layer.append(stage);
+    const video = stage.querySelector('video');
+    const poster = document.createElement('img');
+    poster.className = 'intro-freeze';
+    poster.alt = '';
+    poster.src = video?.poster || 'assets/larz-poster.jpg';
+    layer.append(poster);
+    if (video?.readyState >= 2 && video.videoWidth && video.videoHeight) {
+      const snapshot = document.createElement('canvas');
+      snapshot.className = 'intro-freeze';
+      snapshot.width = video.videoWidth;
+      snapshot.height = video.videoHeight;
+      const context = snapshot.getContext('2d');
+      if (context) {
+        try { context.drawImage(video, 0, 0); layer.append(snapshot); } catch {}
+      }
+    }
     document.body.append(layer);
-    stage.querySelector('video')?.pause();
+    video?.pause();
     const scrollbar = innerWidth - root.clientWidth;
     document.body.style.setProperty('--handoff-scrollbar', scrollbar + 'px');
     history.scrollRestoration = 'manual';
