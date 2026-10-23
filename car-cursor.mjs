@@ -1,8 +1,11 @@
 const TAU = Math.PI * 2;
 export const CAR_HEIGHT = 46;
-export const TRACK_LIFETIME = 720;
-export const TRACK_DISTANCE = 100;
+export const TRACK_LIFETIME = 3400;
+export const TRACK_DISTANCE = 760;
 export const SMOKE_DISTANCE = 44;
+export const TRAIL_QUOTE = 'Sometimes I stagger even myself with my genius';
+export const LETTER_SPACING = 9;
+const TRAIL_TEXT = TRAIL_QUOTE + '  ·  ';
 
 function angleDifference(target, angle) {
   return ((target - angle + Math.PI) % TAU + TAU) % TAU - Math.PI;
@@ -11,7 +14,7 @@ function angleDifference(target, angle) {
 export function trailOpacity(now, createdAt, distance, createdDistance) {
   const timeLeft = Math.max(0, 1 - (now - createdAt) / TRACK_LIFETIME);
   const distanceLeft = Math.max(0, 1 - (distance - createdDistance) / TRACK_DISTANCE);
-  return .42 * timeLeft * distanceLeft;
+  return .85 * Math.sqrt(timeLeft * distanceLeft);
 }
 
 function wheelPositions(x, y, angle, width, height) {
@@ -35,14 +38,16 @@ export class CarTrail {
     this.positioned = false;
     this.tracks = []; this.smoke = [];
     this.smokeDistance = 0;
-    this.treadDistance = 0;
+    this.letterDistance = 0;
+    this.letterIndex = 0;
   }
 
   reset() {
     this.positioned = false;
     this.tracks.length = this.smoke.length = 0;
     this.smokeDistance = 0;
-    this.treadDistance = 0;
+    this.letterDistance = 0;
+    this.letterIndex = 0;
     this.directionX = this.directionY = 0;
     this.targetAngle = this.angle;
     this.lastFrame = 0;
@@ -78,7 +83,8 @@ export class CarTrail {
       this.directionOriginX = x; this.directionOriginY = y;
       this.tracks.length = this.smoke.length = 0;
       this.smokeDistance = 0;
-      this.treadDistance = 0;
+      this.letterDistance = 0;
+      this.letterIndex = 0;
       return;
     }
     if (length < .75) {
@@ -104,18 +110,25 @@ export class CarTrail {
     }
     if (!animate) this.angle = this.targetAngle;
     const angle = this.angle;
-    const steps = Math.min(90, Math.max(1, Math.ceil(length / 4)));
-    let previous = wheelPositions(this.x, this.y, this.angle, this.width, this.height);
+    const steps = Math.min(200, Math.max(1, Math.ceil(length / 4)));
+    const stepLength = length / steps;
     for (let i = 1; i <= steps; i++) {
       const fraction = i / steps;
       const wheels = wheelPositions(this.x + dx * fraction, this.y + dy * fraction, angle, this.width, this.height);
-      this.distance += length / steps;
+      this.distance += stepLength;
       if (animate) {
-        this.treadDistance += length / steps;
-        const tread = this.treadDistance >= 4;
-        if (tread) this.treadDistance %= 4;
-        this.tracks.push({from: previous, to: wheels, tread, createdAt: now, distance: this.distance});
-        this.smokeDistance += length / steps;
+        // Sample by distance, not event frequency: a straight sweep produces
+        // the sentence in order, with the same spacing at every pointer speed.
+        this.letterDistance += stepLength;
+        while (this.letterDistance >= LETTER_SPACING) {
+          this.letterDistance -= LETTER_SPACING;
+          const sample = fraction - this.letterDistance / length;
+          const positions = wheelPositions(this.x + dx * sample, this.y + dy * sample, angle, this.width, this.height);
+          this.tracks.push({positions, angle: Math.atan2(dy, dx),
+            letter: TRAIL_TEXT[this.letterIndex++ % TRAIL_TEXT.length],
+            createdAt: now, distance: this.distance - this.letterDistance});
+        }
+        this.smokeDistance += stepLength;
         if (this.smokeDistance >= 19) {
           this.smokeDistance %= 19;
           for (const wheel of wheels) {
@@ -126,11 +139,10 @@ export class CarTrail {
           }
         }
       }
-      previous = wheels;
     }
     this.x = x; this.y = y; this.lastMove = now;
     // Bounded even when the pointer emits more events than the display draws.
-    this.tracks = this.tracks.slice(-90);
+    this.tracks = this.tracks.slice(-100);
     this.smoke = this.smoke.slice(-32);
   }
 
@@ -179,31 +191,24 @@ function initCarCursor() {
       if (!active || !visible || !car.positioned) return;
       car.steer(now, reducedMotion.matches);
       car.prune(now);
-      context.lineWidth = .8;
-      context.lineCap = 'round';
-      // Black rubber marks: two longitudinal ribs and repeating angled tread
-      // blocks on each tire, rather than a dashed decorative line.
+      context.font = '700 12px ui-monospace, SFMono-Regular, Consolas, monospace';
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      // The two tire prints are the sentence itself, following the driven path.
       for (const track of car.tracks) {
-        context.strokeStyle = `rgba(0,0,0,${trailOpacity(now, track.createdAt, car.distance, track.distance)})`;
-        for (let side = 0; side < 2; side++) {
-          const from = track.from[side], to = track.to[side];
-          const dx = to.x - from.x, dy = to.y - from.y;
-          const length = Math.hypot(dx, dy);
-          if (length < .01) continue;
-          const nx = -dy / length, ny = dx / length;
-          context.beginPath();
-          for (const offset of [-1.35, 1.35]) {
-            context.moveTo(from.x + nx * offset, from.y + ny * offset);
-            context.lineTo(to.x + nx * offset, to.y + ny * offset);
-          }
-          context.stroke();
-          if (track.tread) {
-            context.save(); context.translate(to.x, to.y); context.rotate(Math.atan2(dy, dx));
-            context.beginPath();
-            context.moveTo(-1.7, -1.65); context.lineTo(.3, -.25);
-            context.moveTo(.3, .25); context.lineTo(-1.7, 1.65);
-            context.stroke(); context.restore();
-          }
+        const alpha = trailOpacity(now, track.createdAt, car.distance, track.distance);
+        for (const position of track.positions) {
+          context.save();
+          context.translate(position.x, position.y);
+          context.rotate(track.angle);
+          // A thin light edge keeps black rubber lettering visible over the
+          // dark site, while the filled letter still reads as a tire print.
+          context.lineWidth = 1.3;
+          context.strokeStyle = `rgba(220,220,207,${alpha * .68})`;
+          context.fillStyle = `rgba(0,0,0,${alpha})`;
+          context.strokeText(track.letter, 0, 0);
+          context.fillText(track.letter, 0, 0);
+          context.restore();
         }
       }
       for (const particle of car.smoke) {
