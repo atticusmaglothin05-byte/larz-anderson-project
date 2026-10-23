@@ -48,40 +48,7 @@
 
   header.querySelector('.site-title').addEventListener('click', () => setMenuOpen(false));
 
-  // Reveal decoded photographs with a sharp mask. Content remains visible without JS.
-  if ('IntersectionObserver' in window && !reduceMotion) {
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        revealObserver.unobserve(entry.target);
-        // Observe the unmasked figure: a fully clipped image has no intersection.
-        const element = entry.target.matches('.project-photo')
-          ? entry.target.querySelector('[data-reveal]') : entry.target;
-        const image = element.querySelector('img');
-        const reveal = () => {
-          element.classList.remove('is-pending');
-          element.classList.add('is-revealed');
-        };
-        if (!image || (image.complete && image.naturalWidth)) {
-          if (image?.decode) image.decode().catch(() => {}).then(reveal);
-          else reveal();
-        } else {
-          image.loading = 'eager';
-          image.addEventListener('load', () => {
-            if (image.decode) image.decode().catch(() => {}).then(reveal);
-            else reveal();
-          }, { once: true });
-          image.addEventListener('error', reveal, { once: true });
-          // A slow connection must never leave a photograph permanently masked.
-          window.setTimeout(reveal, 6000);
-        }
-      });
-    }, { threshold: 0.04, rootMargin: '0px 0px -5% 0px' });
-    document.querySelectorAll('[data-reveal], [data-text-reveal]').forEach((element) => {
-      element.classList.add('is-pending');
-      revealObserver.observe(element.matches('[data-reveal]') ? element.closest('figure') : element);
-    });
-  }
+  // Scroll emphasis is handled in scroll-scenes.mjs; content is never hidden.
 
   function syncHeader() { header.classList.toggle('is-scrolled', window.scrollY > 30); }
   window.addEventListener('scroll', syncHeader, { passive: true });
@@ -94,7 +61,7 @@
     const dialogCaption = document.getElementById('photoDialogCaption');
     document.querySelectorAll('[data-photo-view]').forEach((button) => {
       button.addEventListener('click', () => {
-        const image = button.querySelector('img');
+        const image = button.querySelector('img') || button.closest('figure')?.querySelector('img');
         if (!image) return;
         dialogImage.src = button.dataset.photoFull || image.currentSrc || image.src;
         dialogImage.alt = image.alt;
