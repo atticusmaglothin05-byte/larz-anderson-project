@@ -1,5 +1,5 @@
 const clamp = value => Math.max(0, Math.min(1, value));
-export const DRIVE_DURATION = 6800;
+export const DRIVE_DURATION = 5400;
 export const SPEED_QUOTE = "Speed has never killed anyone. Suddenly becoming stationary, that's what gets you";
 
 // One continuous right-to-left pass, with a short cruising beat for reading.
@@ -117,6 +117,10 @@ function initIntroDrive() {
     const quote = document.createElement('blockquote');
     quote.className = 'intro-drive-quote';
     quote.textContent = SPEED_QUOTE;
+    const credit = document.createElement('cite');
+    credit.className = 'intro-drive-credit';
+    credit.textContent = '—Jeremy Clarkson';
+    quote.append(credit);
     rig.append(car, rope, quote);
     layer.append(stage, rig);
     document.body.append(layer);

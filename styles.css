@@ -65,6 +65,7 @@ html.intro-drive-running{overflow:hidden;scroll-behavior:auto;overflow-anchor:no
 .intro-drive-car{flex:0 0 auto;width:clamp(100px,25vw,270px);height:auto;display:block;position:relative;z-index:1}
 .intro-drive-rope{flex:0 0 clamp(14px,3vw,38px);height:1px;background:#d7d5bf;box-shadow:0 1px 1px #000;transform:rotate(-3deg);transform-origin:left center}
 .intro-drive-quote{flex:1;min-width:0;margin:0;padding:clamp(16px,2vw,28px) clamp(15px,2.6vw,36px);border-left:2px solid #bbdf40;background:linear-gradient(105deg,#080b0df5,#080b0de6);color:#f5f5e9;font:italic 500 clamp(16px,2.25vw,30px)/1.32 Georgia,serif;letter-spacing:-.025em;text-wrap:pretty;clip-path:polygon(0 0,100% 0,97% 50%,100% 100%,0 100%)}
+.intro-drive-credit{display:block;margin-top:.7em;font:500 clamp(11px,1vw,14px)/1.4 "Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.015em;text-align:right;color:#c5c9bf}
 .intro-drive-running .project-hero,.intro-consumed .project-hero{height:calc(100svh - var(--header-height));min-height:0;max-height:none}
 .intro-drive-running .car-cursor-layer{visibility:hidden}
 @media print{.intro-drive-layer{display:none!important}.intro-consumed .project-hero{height:auto}}
